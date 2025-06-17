@@ -3,6 +3,7 @@
 #include <ctime>
 #include <thread>
 #include <chrono>
+#include <cstdint>
 
 class ClockCounter {
 public:
@@ -64,20 +65,27 @@ bool MeesagePassing(std::string S) {
 	std::cout << S << std::endl;
 	return true;
 }
-bool WaitS(std::clock_t MS,std::chrono::nanoseconds Sleep,std::string S) {
+
+bool NanoSleep(std::intmax_t NS) {
+	std::chrono::nanoseconds N(NS);
+	std::this_thread::sleep_for(N);
+	return true;
+}
+
+bool WaitS(std::clock_t MS,std::intmax_t Sleep,std::string S) {
 	ClockCounter C(MS);
 		
 	do {
 		MeesagePassing(S);
-		std::this_thread::sleep_for(std::chrono::duration_cast<std::chrono::nanoseconds> (Sleep));
+		NanoSleep(Sleep);
 	} while (!C.TestProgress());
 	return true;
 }
-bool Wait(std::clock_t MS, std::chrono::nanoseconds Sleep) {
+bool Wait(std::clock_t MS, std::intmax_t Sleep) {
 	ClockCounter C(MS);
 
 	do {
-		std::this_thread::sleep_for(std::chrono::duration_cast<std::chrono::nanoseconds> (Sleep));
+		NanoSleep(Sleep);
 	} while (!C.TestProgress());
 	return true;
 }
@@ -87,7 +95,7 @@ int main() {
 	std::chrono::seconds S(1);
 	do {
 		std::cout << C.GetNow() << std::endl;
-		WaitS(10, std::chrono::duration_cast<std::chrono::nanoseconds>(S), "Now Sleeping!");
+		WaitS(10, 1*1000*1000*1000, "Now Sleeping!");
 		std::cout << "Now Nap!" << std::endl;
 	} while (!C.TestProgress());
 
